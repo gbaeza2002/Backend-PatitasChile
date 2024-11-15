@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 
+## modelo usuario
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     
@@ -38,3 +39,4 @@ class User(AbstractUser):
         
     def __str__(self):
         return self.username
+
