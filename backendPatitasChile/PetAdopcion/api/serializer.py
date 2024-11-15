@@ -7,7 +7,7 @@ class MascotaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mascota
-        fields = ['id', 'nombre', 'genero', 'especie', 'raza', 'usuario', 'is_adopted']
+        fields = ['id', 'nombre', 'genero', 'especie', 'raza', 'descripcion', 'edad', 'direccion', 'usuario', 'is_adopted']
 
 class AdopcionSerializer(serializers.ModelSerializer):
     usuario = serializers.PrimaryKeyRelatedField(read_only=True)
