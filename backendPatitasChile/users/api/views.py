@@ -22,6 +22,7 @@ class RegisterView(APIView):
             
             # Generar el código de verificación y su tiempo de expiración
             user.generate_verification_code()
+            print(f"Generated verification code: {user.verification_code}")  # muestra en consola
             
             # Generate the verification code and its expiration time
             send_mail(
