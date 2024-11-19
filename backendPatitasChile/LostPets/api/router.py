@@ -1,8 +1,7 @@
+from django.urls import path
+from .views import LostPetListCreateAPIView, LostPetDetailAPIView
 
-from rest_framework.routers import DefaultRouter
-from .views import LostPetViewSet
-
-router = DefaultRouter()
-router.register(r'lost-pets', LostPetViewSet, basename='lostpet')
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('lost-pets/', LostPetListCreateAPIView.as_view(), name='lost_pets_list_create'),
+    path('lost-pets/<int:pk>/', LostPetDetailAPIView.as_view(), name='lost_pet_detail'),
+]
