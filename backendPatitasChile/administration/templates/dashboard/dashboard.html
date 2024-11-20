@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Establecer un tamaño fijo para los gráficos */
+        .chart-container {
+            height: 300px; /* Ajusta este valor según el tamaño que desees */
+        }
+        canvas {
+            width: 100% !important; /* Asegura que el gráfico ocupe el 100% del ancho del contenedor */
+            height: 100% !important; /* Asegura que el gráfico ocupe el 100% de la altura del contenedor */
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1 text-light">Patitas Chile</span>
+            <span class="navbar-brand mb-0 h1 text-light">{{ user_email }}</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <main class="col-md-12 px-4">
+            <h1 class="my-4 text-primary text-dark">Dashboard</h1>
+
+            <div class="row">
+                <!-- Total de Mascotas -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm bg-primary">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary text-light">Total de Mascotas Perdidas</h5>
+                            <p class="card-text text-danger text-light">{{ total_lost_pets }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total de Mascotas en Adopción -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title text-success text-light">Total de Mascotas en Adopción</h5>
+                            <p class="card-text text-success text-light">{{ total_adoptable_pets }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total de Usuarios -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm bg-info">
+                        <div class="card-body">
+                            <h5 class="card-title text-info text-light">Total de Usuarios Registrados</h5>
+                            <p class="card-text text-info text-light">{{ total_users }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="container my-4">
+                <div class="card shadow-lg p-4">
+                    <div class="row">
+                        <!-- Gráfico de Barras: Mascotas por Especie -->
+                        <div class="col-12 col-md-4 mb-4">
+                            <div class="card shadow-sm border-warning">
+                                <div class="card-body">
+                                    <h5 class="card-title text-warning">Mascotas por Especie</h5>
+                                    <div class="chart-container">
+                                        <canvas id="speciesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- Gráfico de Torta: Adoptadas vs No Adoptadas -->
+                        <div class="col-12 col-md-4 mb-4">
+                            <div class="card shadow-sm border-danger">
+                                <div class="card-body">
+                                    <h5 class="card-title text-danger">Adoptadas vs No Adoptadas</h5>
+                                    <div class="chart-container">
+                                        <canvas id="adoptionChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- Gráfico de Líneas: Crecimiento de Usuarios -->
+                        <div class="col-12 col-md-4 mb-4">
+                            <div class="card shadow-sm border-dark">
+                                <div class="card-body">
+                                    <h5 class="card-title text-dark">Crecimiento de Usuarios</h5>
+                                    <div class="chart-container">
+                                        <canvas id="userGrowthChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           <!-- Información del Usuario -->
+            <div class="container my-4">
+                <div class="card shadow-lg p-4">
+                    <div class="row">
+                        <!-- Información de Usuario -->
+                        <div class="col-12 col-md-6 mb-4">
+                            <div class="card shadow-sm border-secondary">
+                                <div class="card-body">
+                                    <h5 class="card-title text-secondary">Información del Usuario</h5>
+                                    <p><strong>Correo:</strong> {{ user_email }}</p>
+                                    <p><strong>Antigüedad:</strong> {{ user_seniority }} años</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Últimos Usuarios Registrados -->
+            <div class="container mt-4">
+                <div class="card shadow-lg p-4">
+                    <h3>Últimos Usuarios Registrados</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Correo</th>
+                                <th>Fecha de Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                                <tr>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.date_joined }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+
+        </main>
+    </div>
+
+    <script>
+        // Gráfico de Barras: Mascotas por Especie
+        const speciesData = JSON.parse('{{ species_data|safe }}');
+        const speciesLabels = speciesData.map(item => item.especie);
+        const speciesCounts = speciesData.map(item => item.count);
+        new Chart(document.getElementById('speciesChart'), {
+            type: 'bar',
+            data: {
+                labels: speciesLabels,
+                datasets: [{
+                    label: 'Cantidad de Mascotas',
+                    data: speciesCounts,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+
+        // Gráfico de Torta: Adoptadas vs No Adoptadas
+        const adoptionData = JSON.parse('{{ adoption_data|safe }}');
+        new Chart(document.getElementById('adoptionChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Adoptadas', 'No Adoptadas'],
+                datasets: [{
+                    data: [adoptionData.adoptadas, adoptionData.no_adoptadas],
+                    backgroundColor: ['#4caf50', '#f44336'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+
+        // Gráfico de Líneas: Crecimiento de Usuarios
+        const userGrowthData = JSON.parse('{{ user_growth_data|safe }}');
+        const userGrowthLabels = userGrowthData.map(item => new Date(item.month).toLocaleDateString('es-CL', { year: 'numeric', month: 'long' }));
+        const userGrowthCounts = userGrowthData.map(item => item.count);
+        new Chart(document.getElementById('userGrowthChart'), {
+            type: 'line',
+            data: {
+                labels: userGrowthLabels,
+                datasets: [{
+                    label: 'Usuarios Registrados',
+                    data: userGrowthCounts,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
