@@ -15,7 +15,8 @@ def is_admin(user):
 
 def dashboard_view(request):
     # Datos existentes
-    total_lost_pets = Mascota.objects.filter(descripcion__icontains='perdida').count()
+    total_lost_pets = Mascota.objects.count()
+    print(total_lost_pets)
     total_adoptable_pets = Mascota.objects.filter(is_adopted=False).count()
     total_users = User.objects.count()
 
