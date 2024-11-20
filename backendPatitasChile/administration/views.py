@@ -1,10 +1,17 @@
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, redirect
 import json
 from django.db.models.functions import TruncMonth
-from django.shortcuts import render
 from PetAdopcion.models import Mascota
 from users.models import User
 from django.db import models
 from datetime import datetime
+
+# Decorador para verificar si el usuario es administrador
+def is_admin(user):
+    return user.is_superuser  # Verifica si el usuario es un superusuario (admin)
+
+@user_passes_test(is_admin, login_url='no-autorizado/')
 
 def dashboard_view(request):
     # Datos existentes
@@ -54,3 +61,7 @@ def dashboard_view(request):
         'recent_users': recent_users,  # Últimos usuarios registrados
     }
     return render(request, 'dashboard/dashboard.html', context)
+
+# Vista para manejar redirección en caso de no estar autorizado
+def no_autorizado_view(request):
+    return render(request, 'dashboard/no_autorizado.html', status=403)
